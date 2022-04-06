@@ -1,0 +1,9 @@
+# General
+node_modules/
+.env
+
+# Dist directory generated assets
+dist/
+
+# OS junk
+.DS_Store
