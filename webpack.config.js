@@ -1,46 +1,42 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { ESBuildMinifyPlugin } = require('esbuild-loader');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const prod = process.env.NODE_ENV === 'production';
 
-
-let htmlPageNames = ['principe1'];
-let multipleHtmlPlugins = htmlPageNames.map(name => {
+let htmlPageNames = ['principe1', 'test'];
+let multipleHtmlPlugins = htmlPageNames.map((name) => {
   return new HtmlWebpackPlugin({
     template: `./src/principes/${name}.html`, // relative path to the HTML files
     filename: `${name}.html`, // output HTML files
-    chunks: [`${name}`] // respective JS files
-  })
+    chunks: [`${name}`], // respective JS files
+  });
 });
 
 const config = {
   entry: {
     app: './src/js/app',
     principe1: './src/js/principe1',
+    test: './src/js/test',
   },
   output: {
     path: path.resolve('dist'),
     filename: 'js/[name].js',
-    chunkFilename: 'js/[name].[chunkhash:3].js'
+    chunkFilename: 'js/[name].[chunkhash:3].js',
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'esbuild-loader'
+        loader: 'esbuild-loader',
       },
       {
         test: /\.css$/,
         exclude: /node_modules/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: { url: false } },
-          "postcss-loader"
-        ],
+        use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
       },
     ],
   },
@@ -53,31 +49,29 @@ const config = {
     port: 8080,
   },
   watchOptions: {
-    aggregateTimeout: 200
+    aggregateTimeout: 200,
   },
   optimization: {
     minimize: prod,
     minimizer: [
       new ESBuildMinifyPlugin({
-        css: prod
-      })
-    ]
+        css: prod,
+      }),
+    ],
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'css/[name].css'
+      filename: 'css/[name].css',
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
     }),
     new CopyPlugin({
-      patterns: [
-        { from: "src/static", to: "static" },
-      ],
+      patterns: [{ from: 'src/static', to: 'static' }],
     }),
   ].concat(multipleHtmlPlugins),
   mode: prod ? 'production' : 'development',
-  stats: prod ? 'normal' : 'minimal'
+  stats: prod ? 'normal' : 'minimal',
 };
 
 module.exports = config;
