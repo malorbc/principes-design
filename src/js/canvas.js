@@ -1,151 +1,362 @@
+//import three
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as utils from './utils';
 
-//import gltf loader
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const module = () => {
-  function main() {
-    const canvas = document.querySelector('.webgl-principe1');
+  const path = '/static/models/';
+  const canvas = document.querySelector('#c');
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: true,
+  });
 
-    let isLoaded = false;
-    let root;
+  const sceneElements = [];
+  function addScene(elem, fn) {
+    sceneElements.push({ elem, fn });
+  }
 
-    //make a renderer with a transparent background
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-    });
-
-    // renderer.shadowMap.enabled = true;
-
-    const gltfloar = new GLTFLoader();
-    const path = '/static/models/principe1.gltf';
-
-    gltfloar.load(path, (gltf) => {
-      root = gltf.scene;
-      scene.add(root);
-      root.position.set(0, 0, 0);
-      root.scale.set(100, 100, 100);
-      root.rotation.set(0, 0, 0);
-      root.receiveShadow = true;
-
-      root.traverse((o) => {
-        if (o.isMesh) {
-          if (o.material.name == 'sol') {
-            changeMaterialColor(o.material, '#85FFEB');
-            changeEmissiveColor(o.material, '#333333');
-          } else if (o.material.name == 'route') {
-            changeMaterialColor(o.material, '#85FFEB');
-            changeEmissiveColor(o.material, '#111111');
-          } else if (o.material.name == 'desireLine') {
-            changeMaterialColor(o.material, '#6032AA');
-            changeEmissiveColor(o.material, '#6032AA');
-          }
-        }
-      });
-      isLoaded = true;
-    });
-
-    const fov = 75;
-    const aspect = 2; // the canvas default
-    const near = 0.1;
-    const far = 50;
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.z = 3;
-    camera.position.x = 4;
-    camera.position.y = 3;
-
+  function makeScene(elem) {
     const scene = new THREE.Scene();
 
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(0, 10, 10);
+    const fov = 45;
+    const aspect = 2; // the canvas default
+    const near = 0.1;
+    const far = 5;
+    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera.position.set(0, 1, 2);
+    camera.lookAt(0, 0, 0);
+    scene.add(camera);
 
-    const light2 = new THREE.PointLight(0xd7c8ef, 1, 100);
-    light2.position.set(10, 4, -10);
-    scene.add(light2);
-    scene.add(light);
+    const controls = new TrackballControls(camera, elem);
+    controls.noZoom = true;
+    controls.noPan = true;
 
-    const sphereSize = 1;
-    const pointLightHelper = new THREE.PointLightHelper(light2, sphereSize);
-    // scene.add(pointLightHelper);
+    {
+      const light = new THREE.PointLight(0xffffff, 1, 100);
+      light.position.set(0, 10, 10);
 
-    //create controls for the camera
-    const controls = new OrbitControls(camera, canvas);
-    controls.target.set(0, 0, 0);
-    controls.update();
-
-    function resizeRendererToDisplaySize(renderer) {
-      const canvas = renderer.domElement;
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      const needResize = canvas.width !== width || canvas.height !== height;
-      if (needResize) {
-        renderer.setSize(width, height, false);
-      }
-      return needResize;
+      const light2 = new THREE.PointLight(0xd7c8ef, 1, 100);
+      light2.position.set(10, 4, -10);
+      scene.add(light2);
+      scene.add(light);
     }
 
-    function render(time) {
-      time *= 0.001;
+    return { scene, camera, controls };
+  }
 
-      if (resizeRendererToDisplaySize(renderer)) {
-        const canvas = renderer.domElement;
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+  const sceneInitFunctionsByName = {
+    principe1: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'sol') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'route') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#111111');
+            } else if (o.material.name == 'desireLine') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+
+    biaisdecontour: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'rond') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'carre') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+
+    hierarchie: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'rond') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'carre') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+    trouversonchemin: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'rond') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'carre') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            } else if (o.material.name == 'pierres') {
+              utils.changeMaterialColor(o.material, '#AC8DDE');
+              utils.changeEmissiveColor(o.material, '#333333');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+
+    surlignage: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'rond') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'carre') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+
+    iteration: (elem) => {
+      let root;
+      let isLoaded = false;
+      const modelName = elem.getAttribute('data-diagram') + '.gltf';
+      const gtlfloader = new GLTFLoader();
+      gtlfloader.load(path + modelName, (gltf) => {
+        root = gltf.scene;
+        scene.add(root);
+        root.position.set(0, 0, 0);
+        root.scale.set(20, 20, 20);
+        root.rotation.set(0, 0, 0);
+        root.receiveShadow = true;
+        root.traverse((o) => {
+          if (o.isMesh) {
+            if (o.material.name == 'rond') {
+              utils.changeMaterialColor(o.material, '#85FFEB');
+              utils.changeEmissiveColor(o.material, '#333333');
+            } else if (o.material.name == 'carre') {
+              utils.changeMaterialColor(o.material, '#6032AA');
+              utils.changeEmissiveColor(o.material, '#6032AA');
+            }
+          }
+        });
+
+        isLoaded = true;
+      });
+
+      const { scene, camera, controls } = makeScene(elem);
+
+      return (time, rect) => {
+        if (isLoaded) {
+          // root.rotation.y = time * 0.1;
+          camera.aspect = rect.width / rect.height;
+          camera.updateProjectionMatrix();
+          controls.handleResize();
+          controls.update();
+          renderer.render(scene, camera);
+        }
+      };
+    },
+  };
+
+  document.querySelectorAll('[data-diagram]').forEach((elem) => {
+    const sceneName = elem.dataset.diagram;
+    const sceneInitFunction = sceneInitFunctionsByName[sceneName];
+    const sceneRenderFunction = sceneInitFunction(elem);
+    addScene(elem, sceneRenderFunction);
+  });
+
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
+  const clearColor = new THREE.Color('#000');
+  function render(time) {
+    time *= 0.001;
+
+    resizeRendererToDisplaySize(renderer);
+
+    renderer.setScissorTest(false);
+    renderer.setClearColor(clearColor, 0);
+    renderer.clear(true, true);
+    renderer.setScissorTest(true);
+
+    const transform = `translateY(${window.scrollY}px)`;
+    renderer.domElement.style.transform = transform;
+
+    for (const { elem, fn } of sceneElements) {
+      // get the viewport relative position opf this element
+      const rect = elem.getBoundingClientRect();
+      const { left, right, top, bottom, width, height } = rect;
+
+      const isOffscreen =
+        bottom < 0 || top > renderer.domElement.clientHeight || right < 0 || left > renderer.domElement.clientWidth;
+
+      if (!isOffscreen) {
+        const positiveYUpBottom = renderer.domElement.clientHeight - bottom;
+        renderer.setScissor(left, positiveYUpBottom, width, height);
+        renderer.setViewport(left, positiveYUpBottom, width, height);
+
+        fn(time, rect);
       }
-
-      if (isLoaded) {
-        const speed = 0.1;
-        const rot = time * speed;
-        root.rotation.y = rot;
-      }
-
-      renderer.render(scene, camera);
-
-      requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
   }
 
-  main();
-
-  function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  }
-
-  function rgbToPercents(rgb) {
-    return {
-      r: rgb.r / 255,
-      g: rgb.g / 255,
-      b: rgb.b / 255,
-    };
-  }
-
-  function changeMaterialColor(mat, hex) {
-    const rgb = hexToRgb(hex);
-    const ratio = rgbToPercents(rgb);
-    mat.color.r = ratio.r;
-    mat.color.g = ratio.g;
-    mat.color.b = ratio.b;
-  }
-
-  function changeEmissiveColor(mat, hex) {
-    const rgb = hexToRgb(hex);
-    const ratio = rgbToPercents(rgb);
-    mat.emissive.r = ratio.r;
-    mat.emissive.g = ratio.g;
-    mat.emissive.b = ratio.b;
-  }
+  requestAnimationFrame(render);
 };
 
 export default module;
