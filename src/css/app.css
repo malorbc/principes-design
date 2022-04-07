@@ -2,8 +2,12 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-a.bouton:hover > span > svg {
+a.bouton-right:hover>span>svg {
   @apply translate-x-2;
+}
+
+a.bouton-left:hover>span>svg {
+  @apply -translate-x-2;
 }
 
 canvas:hover {

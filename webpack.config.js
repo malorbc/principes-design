@@ -6,9 +6,20 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const prod = process.env.NODE_ENV === 'production';
 
+
+let htmlPageNames = ['principe1'];
+let multipleHtmlPlugins = htmlPageNames.map(name => {
+  return new HtmlWebpackPlugin({
+    template: `./src/principes/${name}.html`, // relative path to the HTML files
+    filename: `${name}.html`, // output HTML files
+    chunks: [`${name}`] // respective JS files
+  })
+});
+
 const config = {
   entry: {
-    app: './src/js/app'
+    app: './src/js/app',
+    principe1: './src/js/principe1',
   },
   output: {
     path: path.resolve('dist'),
@@ -64,7 +75,7 @@ const config = {
         { from: "src/static", to: "static" },
       ],
     }),
-  ],
+  ].concat(multipleHtmlPlugins),
   mode: prod ? 'production' : 'development',
   stats: prod ? 'normal' : 'minimal'
 };
