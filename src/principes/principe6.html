@@ -14,9 +14,11 @@
 </head>
 
 <body class="overflow-x-hidden">
-    <canvas id="c" class="absolute left-0 top-0 w-screen h-screen -z-10"></canvas>
     <main class="h-screen">
-        <div class="hero h-96 bg-gradient-to-bl from-primary-100  flex items-center justify-center -z-20">
+        <div
+            class="relative hero h-96 bg-gradient-to-bl from-primary-100 to-secondary-200 flex items-center justify-center">
+            <canvas id="c" class="absolute top-0 let-0 w-full h-full">
+            </canvas>
             <div class="w-full h-full rounded-md" data-diagram="surlignage"></div>
             <div class="back  absolute top-8 left-8 ">
                 <a href="/"

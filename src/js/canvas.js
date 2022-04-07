@@ -84,7 +84,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();
@@ -126,7 +126,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();
@@ -168,7 +168,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();
@@ -211,7 +211,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();
@@ -252,7 +252,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();
@@ -293,7 +293,7 @@ const module = () => {
 
       return (time, rect) => {
         if (isLoaded) {
-          // root.rotation.y = time * 0.1;
+          root.rotation.y = time * 0.1;
           camera.aspect = rect.width / rect.height;
           camera.updateProjectionMatrix();
           controls.handleResize();

@@ -18,7 +18,6 @@ let multipleHtmlPlugins = htmlPageNames.map((name) => {
 const config = {
   entry: {
     app: './src/js/app',
-    principe1: './src/js/principe1',
   },
   output: {
     path: path.resolve('dist'),
