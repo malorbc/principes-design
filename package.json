@@ -22,10 +22,10 @@
     "webpack-dev-server": "^4.7.4"
   },
   "browserslist": "last 3 years",
-  "name": "webpack-tailwindcss",
-  "version": "1.2.0",
-  "description": "Webpack + TailwindCSS + esbuild",
-  "author": "Paweł Kowalski <pavelloz@gmail.com>",
+  "name": "principes-design",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "three": "^0.139.2"
